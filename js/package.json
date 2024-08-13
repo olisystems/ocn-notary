@@ -1,0 +1,28 @@
+{
+  "name": "@shareandcharge/ocn-notary",
+  "version": "1.0.0",
+  "description": "Library for signing requests and verifying signatures on the Open Charging Network",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run lint && tsc",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "test": "npm run lint && mocha -r ts-node/register 'test/**/*.spec.ts'"
+  },
+  "author": "Share&Charge Foundation",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.2.2",
+    "@types/jsonpath": "^0.2.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.12.28",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "ethers": "^4.0.37",
+    "jsonpath": "^1.0.2"
+  }
+}

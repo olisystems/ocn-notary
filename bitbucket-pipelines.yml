@@ -1,0 +1,17 @@
+image: alpine:latest
+
+pipelines:
+  default:  
+  - step:
+      caches:
+        - js
+      script:
+        - apk add make nodejs npm gradle
+        - make deps
+        - make test
+        - make build
+
+# define custom cache locations:
+definitions:
+  caches:
+    js: ./js/node_modules
