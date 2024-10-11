@@ -162,7 +162,7 @@ $ ./gradlew build
 
 Uploading a new version to Maven Central can be done as follows:
 
-<b>Make sure to use temurin 19 for deployments</b>
+<b>Make sure to use temurin 19 JVM for deployments</b>
 
 - Bump the version number in `build.gradle.kts`:
 ```kotlin
