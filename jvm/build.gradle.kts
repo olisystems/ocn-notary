@@ -3,24 +3,15 @@ import org.gradle.nativeplatform.platform.internal.Architectures
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-group = "shareandcharge.openchargingnetwork"
-version = "1.0.1-temp"
-
 plugins {
-    `maven-publish`
     kotlin("jvm") version "1.6.21"
+    signing
     id("org.jetbrains.dokka") version "1.8.10"
-    id("com.jfrog.artifactory") version "4.29.1"
+    id("eu.kakde.gradle.sonatype-maven-central-publisher") version "1.0.6"
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-        apiVersion = "1.5" // Explicitly set API version
-        languageVersion = "1.5" // Explicitly set language version
-    }
-}
-
+group = "com.my-oli"
+version = "1.0.2-1"
 
 repositories {
     mavenCentral()
@@ -73,27 +64,17 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
-}
 
 tasks.dokkaHtml {
     outputDirectory.set(buildDir.resolve("dokka"))
 }
+
 
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
     from(tasks.dokkaHtml)
-}
-
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
 }
 
 publishing {
@@ -104,30 +85,69 @@ publishing {
     }
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
 
-//publishing {
-//    publications {
-//        create<MavenPublication>("default") {
-//            from(components["java"])
-//            artifact(dokkaJar)
-//            artifact(sourcesJar)
-//        }
-//    }
-//}
+object Meta {
+    val COMPONENT_TYPE = "java" // "java" or "versionCatalog"
+    val GROUP = "com.my-oli"
+    val ARTIFACT_ID = "ocn-notary"
+    val VERSION = "1.0.2-1"
+    val PUBLISHING_TYPE = "AUTOMATIC" // USER_MANAGED or AUTOMATIC
+    val SHA_ALGORITHMS = listOf("SHA-256", "SHA-512") // sha256 and sha512 are supported but not mandatory. Only sha1 is mandatory but it is supported by default.
+    val DESC = "GitHub Version Catalog Repository for Personal Projects based on Gradle"
+    val LICENSE = "Apache-2.0"
+    val LICENSE_URL = "https://opensource.org/licenses/Apache-2.0"
+    val GITHUB_REPO = "olisystems/ocn-notary"
+    val DEVELOPER_ID = "olisystems"
+    val DEVELOPER_NAME = "OLI Systems"
+    val DEVELOPER_ORGANIZATION = "OLI Systems GmbH"
+    val DEVELOPER_ORGANIZATION_URL = "https://www.my-oli.com/en/"
+}
 
-//// Artifactory configuration (replace Bintray)
-//artifactory {
-//    setContextUrl("https://your-artifactory-url.com/artifactory")
-//    publish {
-//        repository {
-//            setRepoKey("openchargingnetwork")
-//            setUsername(project.findProperty("artifactoryUser") as String?)
-//            setPassword(project.findProperty("artifactoryApiKey") as String?)
-//        }
-//        defaults {
-//            publications("default")
-//            setPublishArtifacts(true)
-//            setPublishPom(true)
-//        }
-//    }
-//}
+val sonatypeUsername: String? by project // this is defined in ~/.gradle/gradle.properties
+val sonatypePassword: String? by project // this is defined in ~/.gradle/gradle.properties
+
+sonatypeCentralPublishExtension {
+    // Set group ID, artifact ID, version, and other publication details
+    groupId.set(Meta.GROUP)
+    artifactId.set(Meta.ARTIFACT_ID)
+    version.set(Meta.VERSION)
+    componentType.set(Meta.COMPONENT_TYPE) // "java" or "versionCatalog"
+    publishingType.set(Meta.PUBLISHING_TYPE) // USER_MANAGED or AUTOMATIC
+
+    // Set username and password for Sonatype repository
+    username.set(System.getenv("SONATYPE_USERNAME") ?: sonatypeUsername)
+    password.set(System.getenv("SONATYPE_PASSWORD") ?: sonatypePassword)
+
+    // Configure POM metadata
+    pom {
+        name.set(Meta.ARTIFACT_ID)
+        description.set(Meta.DESC)
+        url.set("https://github.com/${Meta.GITHUB_REPO}")
+        licenses {
+            license {
+                name.set(Meta.LICENSE)
+                url.set(Meta.LICENSE_URL)
+            }
+        }
+        developers {
+            developer {
+                id.set(Meta.DEVELOPER_ID)
+                name.set(Meta.DEVELOPER_NAME)
+                organization.set(Meta.DEVELOPER_ORGANIZATION)
+                organizationUrl.set(Meta.DEVELOPER_ORGANIZATION_URL)
+            }
+        }
+        scm {
+            url.set("https://github.com/${Meta.GITHUB_REPO}")
+            connection.set("scm:git:https://github.com/${Meta.GITHUB_REPO}")
+            developerConnection.set("scm:git:https://github.com/${Meta.GITHUB_REPO}")
+        }
+        issueManagement {
+            system.set("GitHub")
+            url.set("https://github.com/${Meta.GITHUB_REPO}/issues")
+        }
+    }
+}

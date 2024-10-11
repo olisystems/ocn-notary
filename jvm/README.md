@@ -1,6 +1,6 @@
 # OCN Notary JVM Package
 
-This readme contains specific information for the JVM package of the OCN Notary, written in Kotlin. This includes how 
+This readme contains specific information for the JVM package of the OCN Notary, written in Kotlin. This includes how
 to test, build, publish, install and use the library.
 
 ## Install
@@ -30,8 +30,8 @@ Examples are provided in Java.
 
 If an OCN node or party requires message signing, an `OCN-Signature` header should be added to the HTTP request.
 
-Firstly, make sure to have the private key which will sign the message ready. If a key needs to be generated, the 
-[web3j](https://github.com/web3j/web3j) `crypto` package can do this: 
+Firstly, make sure to have the private key which will sign the message ready. If a key needs to be generated, the
+[web3j](https://github.com/web3j/web3j) `crypto` package can do this:
 ```java
 String privateKey = Keys.createEcKeyPair().getPrivateKey().toString(16);
 ```
@@ -145,11 +145,11 @@ rewrites.put("$['body']['response_url']", "https://some.emsp.server.com/ocpi/2.2
 notary.stash(rewrites);
 ```
 
-Here, we create a map of rewritten values. This ensures that the recipient can verify the original signatory of the 
+Here, we create a map of rewritten values. This ensures that the recipient can verify the original signatory of the
 message, by rebuilding the original request. The map has the JsonPath as key, pointing to the overwritten value.
 
 The recipient only needs to verify the signature as usual. The verify method will check for any rewrites and ensure
-that they are valid.  
+that they are valid.
 
 ## Development
 
@@ -160,20 +160,34 @@ $ ./gradlew test
 $ ./gradlew build
 ```
 
-Uploading a new version to Jcenter can be done as follows:
+Uploading a new version to Maven Central can be done as follows:
+
+<b>Make sure to use temurin 19 JVM for deployments</b>
 
 - Bump the version number in `build.gradle.kts`:
 ```kotlin
-version = "1.0.1-beta2" 
+version = "1.0.2-1"
+
+//...
+
+object Meta {
+    val VERSION = "1.0.2-1"
+}
 ```
 
-- Export the following environment variables:
+- Add the following properties to the local gradle.properties
 ```
-export ORG_GRADLE_PROJECT_bintrayUser={{BINTRAY_USERNAME}}
-export ORG_GRADLE_PROJECT_bintrayKey={{BINTRAY_APIKEY}}
+signing.keyId=
+signing.password=
+signing.secretKeyRingFile=
+
+sonatypeUsername=
+sonatypePassword=
 ```
 
 - Run the upload command:
 ```
-./gradlew bintrayUpload
+./gradlew :publishToSonatype
 ```
+
+Further documentation for the publishing plugin can be found here: https://github.com/ani2fun/sonatype-maven-central-publisher
